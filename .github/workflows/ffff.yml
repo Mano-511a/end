@@ -1,0 +1,23 @@
+name: RDP_Direct_Final
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        run: |
+          # إنشاء مستخدم وتفعيل الـ RDP
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Start TCP Tunnel
+        run: |
+          # استخدام Pinggy لفتح نفق TCP مباشر على منفذ 3389
+          # خيار -T و ServerAlive يضمنان ظهور الرابط فوراً في السجلات
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -T -p 443 -R0:localhost:3389 a.pinggy.io
