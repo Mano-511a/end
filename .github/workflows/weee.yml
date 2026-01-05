@@ -1,4 +1,4 @@
-name: RDP_Pinggy
+name: RDP_Pinggy_Final
 
 on: 
   workflow_dispatch:
@@ -14,13 +14,15 @@ jobs:
           net user kamel123 MyStrong123 /add
           net localgroup administrators kamel123 /add
           
-          # 2. إعدادات السيرفر لقبول الاتصال
+          # 2. إعدادات النظام لقبول الاتصال البعيد
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          
+          # 3. تخطي المصادقة المعقدة لضمان عمل الاتصال عبر النفق
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
 
       - name: Start Pinggy Tunnel
         shell: pwsh
         run: |
-          # تشغيل النفق مع إضافة خيارات لإجبار الرابط على الظهور في السجلات
+          # إضافة خيار -T وخيار ServerAlive لضمان طباعة الرابط فوراً في السجلات
           ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -T -p 443 -R0:localhost:3389 a.pinggy.io
