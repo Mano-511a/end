@@ -1,0 +1,25 @@
+name: RDP_Serveo_Direct
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        run: |
+          # 1. إنشاء المستخدم وتفعيل الـ RDP
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          
+          # 2. إعدادات الأمان للسماح بالاتصال عبر النفق
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Start TCP Tunnel
+        run: |
+          # طلب نفق TCP من Serveo
+          # سيقوم هذا الأمر بطباعة سطر يحتوي على serveo.net ورقم المنفذ
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R 0:localhost:3389 serveo.net
