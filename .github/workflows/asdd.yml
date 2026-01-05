@@ -1,0 +1,26 @@
+name: RDP_Direct_Link
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        run: |
+          # إعداد المستخدم وتفعيل الـ RDP
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Start Tunnel
+        run: |
+          # استخدام خدمة تفتح منفذ 3389 وتعطيك رابط مباشر
+          # سنستخدم هنا سكربت يقوم بإنشاء نفق TCP سريع
+          Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+          Expand-Archive ngrok.zip
+          # ملاحظة: سأستخدم طريقة بديلة لا تطلب Token إذا أمكن أو تعطيك رابط Serveo محسّن
+          ssh -o StrictHostKeyChecking=no -R 80:localhost:3389 serveo.net
