@@ -1,0 +1,32 @@
+name: RDP
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Download and Setup ngrok
+        shell: pwsh
+        run: |
+          # 1. تحميل ملف ngrok
+          Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+          
+          # 2. فك الضغط في المجلد الحالي مباشرة
+          Expand-Archive -Path ngrok.zip -DestinationPath . -Force
+          
+          # 3. إدخال التوكن الجديد (37qg...)
+          ./ngrok.exe authtoken "37qg5hfDZidwsWDFWoNb13aYhLg_7wBxUi1Z7bXdrJxRTYqwd"
+
+      - name: Enable RDP and Start ngrok
+        shell: pwsh
+        run: |
+          # إعداد المستخدم والصلاحيات
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          
+          # تشغيل الاتصال
+          ./ngrok.exe tcp 3389
