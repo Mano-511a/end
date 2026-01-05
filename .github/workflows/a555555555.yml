@@ -1,4 +1,4 @@
-name: Windows_In_Browser
+name: RDP_Final_Browser_Link
 
 on: 
   workflow_dispatch:
@@ -11,14 +11,11 @@ jobs:
         run: |
           net user kamel123 MyStrong123 /add
           net localgroup administrators kamel123 /add
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Set-ItemProperty -Path 'HKLM:\System\ControlSet001\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Install Web-RDP
+      - name: Start Tunnel
+        shell: cmd
         run: |
-          # تثبيت أداة تفتح الويندوز كصفحة ويب
-          pip install webssh
-          
-      - name: Start Browser Access
-        run: |
-          # استخدام خدمة Pinggy لفتح رابط ويب مباشر للمتصفح
+          echo "جاري تشغيل الرابط... انتظر 10 ثواني وحدث الصفحة"
           ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:3389 a.pinggy.io
