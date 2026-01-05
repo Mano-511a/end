@@ -1,0 +1,28 @@
+name: RDP_Loophole
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Download Loophole
+        shell: pwsh
+        run: |
+          # تحميل أداة Loophole
+          Invoke-WebRequest https://github.com/loophole/cli/releases/latest/download/loophole_windows_64bit.zip -OutFile loophole.zip
+          Expand-Archive -Path loophole.zip -DestinationPath . -Force
+
+      - name: Enable RDP
+        shell: pwsh
+        run: |
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+      - name: Start Loophole Tunnel
+        shell: pwsh
+        run: |
+          # تشغيل النفق على منفذ الـ RDP
+          ./loophole.exe tcp 3389
