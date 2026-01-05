@@ -1,0 +1,28 @@
+name: RDP_Serveo
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        shell: pwsh
+        run: |
+          # 1. إنشاء مستخدم جديد للـ RDP
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          
+          # 2. تفعيل بروتوكول الـ RDP في الويندوز
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          
+          # 3. السماح بالاتصالات بدون باسورد معقد (اختياري لضمان الدخول)
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Start Serveo Tunnel
+        shell: pwsh
+        run: |
+          # تشغيل النفق وتوجيه منفذ 3389 إلى سيرفرات Serveo
+          # سيقوم هذا الأمر بإعطائك عنوان الاتصال في سجلات الأكشن (Logs)
+          ssh -o StrictHostKeyChecking=no -R 0:localhost:3389 serveo.net
