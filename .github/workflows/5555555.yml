@@ -1,0 +1,23 @@
+name: RDP_Final_Solution
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        run: |
+          # إعداد المستخدم والويندوز
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Start Reliable Tunnel
+        run: |
+          # استخدام محرك تشفير مختلف لضمان ظهور الرابط
+          # سنحاول الاتصال بسيرفر SSH هولندي (غالباً ما يكون أسرع وأخف ضغطاً)
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R 0:localhost:3389 tunnel.us.itest.run
