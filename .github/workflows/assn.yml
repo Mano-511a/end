@@ -1,0 +1,22 @@
+name: RDP_Direct_In_Browser
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        run: |
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+
+      - name: Setup Ngrok Browser (No Card Required)
+        run: |
+          # سنستخدم أداة بسيطة تفتح واجهة رسومية فوراً
+          curl -L -o ngrok.zip https://bin.equinox.io/c/bPR9778M7gi/ngrok-v3-stable-windows-amd64.zip
+          Expand-Archive ngrok.zip
+          # هذا الأمر سيفتح نفق ويب مباشر
+          ./ngrok http 3389
