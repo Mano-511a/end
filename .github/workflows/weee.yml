@@ -1,0 +1,26 @@
+name: RDP_Pinggy
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        shell: pwsh
+        run: |
+          # 1. إنشاء المستخدم وتفعيل الـ RDP
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          
+          # 2. إعدادات إضافية لضمان قبول الاتصال
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Start Pinggy Tunnel
+        shell: pwsh
+        run: |
+          # استخدام خدمة Pinggy لفتح نفق RDP
+          # ستعطيك هذه الخدمة رابطاً مباشراً في الـ Logs
+          ssh -o StrictHostKeyChecking=no -p 443 -R0:localhost:3389 a.pinggy.io
