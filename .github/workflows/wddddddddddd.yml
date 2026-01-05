@@ -1,0 +1,24 @@
+name: RDP_Final_Fix
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Enable RDP
+        run: |
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'UserAuthentication' -Value 0
+
+      - name: Install and Start Tunnel
+        shell: cmd
+        run: |
+          :: تحميل أداة بسيطة جداً لا تطلب حساباً
+          npm install -g localtunnel
+          :: تشغيل النفق وإظهار الرابط
+          lt --port 3389
